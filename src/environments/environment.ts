@@ -1,3 +1,3 @@
 export const environment = {
-  apiUrl: 'https://resumeai-api.vercel.app/api',
+  apiUrl: 'https://resume-ai-1w4m.onrender.com/api',
 };
