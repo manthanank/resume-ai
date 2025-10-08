@@ -23,6 +23,15 @@ app.use(rateLimit({
 
 app.use('/api', interviewRoutes);
 
-app.get('/', (req, res) => res.send('Resume-AI Backend (Gemini + Cloudinary)'));
+app.get('/', (req, res) => res.json({
+  message: 'Resume-AI Backend (Gemini + Cloudinary)',
+  status: 'running',
+  timestamp: new Date().toISOString()
+}));
+
+app.get('/health', (req, res) => res.json({
+  status: 'healthy',
+  timestamp: new Date().toISOString()
+}));
 
 export default app;
