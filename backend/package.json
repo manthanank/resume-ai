@@ -1,0 +1,38 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [
+    "resume",
+    "ai",
+    "interview",
+    "gemini",
+    "cloudinary"
+  ],
+  "author": "Manthan Ankolekar",
+  "license": "MIT",
+  "description": "Backend for Resume-AI",
+  "dependencies": {
+    "@google/genai": "^1.22.0",
+    "cloudinary": "^2.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "mammoth": "^1.11.0",
+    "mongoose": "^8.19.1",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "pdf-parse": "^2.1.10"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

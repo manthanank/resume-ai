@@ -1,0 +1,546 @@
+{
+  "info": {
+    "name": "Resume-AI Backend API",
+    "description": "Complete API collection for the Resume-AI backend service. This collection includes endpoints for uploading resumes, conducting AI-powered interviews, and retrieving interview results.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for request tracking",
+          "pm.globals.set('timestamp', new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test to check response time",
+          "pm.test('Response time is less than 10000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+          "});",
+          "",
+          "// Global test to check response format",
+          "pm.test('Response has valid JSON', function () {",
+          "    pm.response.to.have.jsonBody();",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "sessionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "resumeId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": [""]
+        },
+        "description": "Basic health check endpoint to verify the server is running."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response contains expected message', function () {",
+              "    pm.expect(pm.response.text()).to.include('Resume-AI Backend');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload Resume",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "resume",
+              "type": "file",
+              "src": "",
+              "description": "Upload a PDF or DOCX resume file (max 5MB)"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/upload",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "upload"]
+        },
+        "description": "Upload a resume file to extract text, generate interview questions, and create an interview session. Accepts PDF and DOCX files up to 5MB."
+      },
+      "response": [
+        {
+          "name": "Successful Upload",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "resume",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"sessionId\": \"64f8a1b2c3d4e5f6a7b8c9d0\",\n  \"currentQuestion\": \"Tell me about your experience with JavaScript and React.\",\n  \"currentIndex\": 0,\n  \"remaining\": 4\n}"
+        },
+        {
+          "name": "No File Error",
+          "originalRequest": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "upload"]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": \"Resume file (.pdf or .docx) is required.\"\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success field', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('success');",
+              "});",
+              "",
+              "pm.test('Response contains sessionId', function () {",
+              "    const jsonData = pm.response.json();",
+              "    if (jsonData.success) {",
+              "        pm.expect(jsonData).to.have.property('sessionId');",
+              "        pm.globals.set('sessionId', jsonData.sessionId);",
+              "    }",
+              "});",
+              "",
+              "pm.test('Response contains current question', function () {",
+              "    const jsonData = pm.response.json();",
+              "    if (jsonData.success) {",
+              "        pm.expect(jsonData).to.have.property('currentQuestion');",
+              "        pm.expect(jsonData).to.have.property('currentIndex');",
+              "        pm.expect(jsonData).to.have.property('remaining');",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Answer Question",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"answer\": \"I have 3 years of experience with JavaScript and React. I've worked on several projects including a full-stack e-commerce application where I implemented responsive components, state management with Redux, and integrated REST APIs. I'm comfortable with modern React patterns like hooks, context API, and have experience with testing using Jest and React Testing Library.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/interview/answer",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "interview", "answer"]
+        },
+        "description": "Submit an answer to the current interview question. If this is the last question, the API will automatically generate reviews and an overall score."
+      },
+      "response": [
+        {
+          "name": "Next Question Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"64f8a1b2c3d4e5f6a7b8c9d0\",\n  \"answer\": \"I have 3 years of experience with JavaScript and React...\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/interview/answer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "interview", "answer"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"nextQuestion\": \"Can you describe a challenging project you worked on and how you overcame the obstacles?\",\n  \"currentIndex\": 1,\n  \"remaining\": 3\n}"
+        },
+        {
+          "name": "Interview Complete Response",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"64f8a1b2c3d4e5f6a7b8c9d0\",\n  \"answer\": \"This was my final answer to the last question.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/interview/answer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "interview", "answer"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"success\": true,\n  \"message\": \"Interview complete\",\n  \"overallScore\": 8.5,\n  \"reviews\": [\n    {\n      \"question\": \"Tell me about your experience with JavaScript and React.\",\n      \"answer\": \"I have 3 years of experience...\",\n      \"score\": 9,\n      \"feedback\": \"Excellent technical knowledge and clear communication.\",\n      \"improvement\": \"Consider mentioning specific frameworks or tools you've used.\"\n    }\n  ]\n}"
+        },
+        {
+          "name": "Invalid Session Error",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"invalid_session_id\",\n  \"answer\": \"My answer here\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/interview/answer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "interview", "answer"]
+            }
+          },
+          "status": "Not Found",
+          "code": 404,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": \"Session not found\"\n}"
+        },
+        {
+          "name": "Missing Parameters Error",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"64f8a1b2c3d4e5f6a7b8c9d0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/interview/answer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "interview", "answer"]
+            }
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "cookie": [],
+          "body": "{\n  \"error\": \"sessionId and answer (string) are required\"\n}"
+        }
+      ],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success field', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('success');",
+              "});",
+              "",
+              "const jsonData = pm.response.json();",
+              "",
+              "if (jsonData.success && jsonData.nextQuestion) {",
+              "    pm.test('Has next question data', function () {",
+              "        pm.expect(jsonData).to.have.property('nextQuestion');",
+              "        pm.expect(jsonData).to.have.property('currentIndex');",
+              "        pm.expect(jsonData).to.have.property('remaining');",
+              "    });",
+              "} else if (jsonData.success && jsonData.message === 'Interview complete') {",
+              "    pm.test('Interview completed successfully', function () {",
+              "        pm.expect(jsonData).to.have.property('overallScore');",
+              "        pm.expect(jsonData).to.have.property('reviews');",
+              "        pm.expect(jsonData.reviews).to.be.an('array');",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sample Resume Upload (PDF)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "resume",
+              "type": "file",
+              "src": "",
+              "description": "Upload a sample PDF resume for testing"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/upload",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "upload"]
+        },
+        "description": "Example request for uploading a PDF resume file. Make sure to select a valid PDF file from your local system."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success field', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('success');",
+              "});",
+              "",
+              "pm.test('Response contains sessionId', function () {",
+              "    const jsonData = pm.response.json();",
+              "    if (jsonData.success) {",
+              "        pm.expect(jsonData).to.have.property('sessionId');",
+              "        pm.globals.set('sessionId', jsonData.sessionId);",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sample Resume Upload (DOCX)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "resume",
+              "type": "file",
+              "src": "",
+              "description": "Upload a sample DOCX resume for testing"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/upload",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "upload"]
+        },
+        "description": "Example request for uploading a DOCX resume file. Make sure to select a valid DOCX file from your local system."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success field', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('success');",
+              "});",
+              "",
+              "pm.test('Response contains sessionId', function () {",
+              "    const jsonData = pm.response.json();",
+              "    if (jsonData.success) {",
+              "        pm.expect(jsonData).to.have.property('sessionId');",
+              "        pm.globals.set('sessionId', jsonData.sessionId);",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complete Interview Flow",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sessionId\": \"{{sessionId}}\",\n  \"answer\": \"This is a comprehensive answer demonstrating my skills, experience, and problem-solving abilities. I have worked on various projects that showcase my technical expertise and soft skills. In my previous role, I successfully led a team of developers to deliver a complex web application on time and within budget. I'm passionate about continuous learning and staying updated with the latest technologies in the industry.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/interview/answer",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "interview", "answer"]
+        },
+        "description": "Example of a comprehensive answer that would typically be given for the final question in an interview session."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has success field', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('success');",
+              "});",
+              "",
+              "const jsonData = pm.response.json();",
+              "",
+              "if (jsonData.success && jsonData.message === 'Interview complete') {",
+              "    pm.test('Interview completed successfully', function () {",
+              "        pm.expect(jsonData).to.have.property('overallScore');",
+              "        pm.expect(jsonData).to.have.property('reviews');",
+              "        pm.expect(jsonData.reviews).to.be.an('array');",
+              "        pm.expect(jsonData.overallScore).to.be.a('number');",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
