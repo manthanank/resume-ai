@@ -2,10 +2,11 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ResumeInterview } from '../../services/resume-interview';
 import { ReviewInterface } from '../../models/interview';
+import { VisitorCount } from '../visitor-count/visitor-count';
 
 @Component({
   selector: 'app-resume-results',
-  imports: [],
+  imports: [VisitorCount],
   templateUrl: './resume-results.html',
   styleUrl: './resume-results.scss'
 })

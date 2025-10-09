@@ -1,11 +1,13 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ResumeInterview } from '../../services/resume-interview';
+import { Track } from '../../services/track';
+import { VisitorCount } from '../visitor-count/visitor-count';
 
 @Component({
   selector: 'app-resume-upload',
-  imports: [FormsModule],
+  imports: [FormsModule, VisitorCount],
   templateUrl: './resume-upload.html',
   styleUrl: './resume-upload.scss'
 })
@@ -13,6 +15,8 @@ export class ResumeUpload {
   selectedFile = signal<File | null>(null);
   isUploading = signal(false);
   errorMessage = signal<string>('');
+
+  private trackService = inject(Track);
 
   constructor(
     private resumeInterviewService: ResumeInterview,
@@ -50,6 +54,9 @@ export class ResumeUpload {
 
     this.isUploading.set(true);
     this.errorMessage.set('');
+
+    // Track resume upload event
+    this.trackService.trackProjectVisit('resume-upload').subscribe();
 
     this.resumeInterviewService.uploadResume(this.selectedFile()!)
       .subscribe({

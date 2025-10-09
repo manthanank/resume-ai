@@ -3,10 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ResumeInterview as ResumeInterviewService } from '../../services/resume-interview';
 import { AnswerResponseInterface } from '../../models/interview';
+import { VisitorCount } from '../visitor-count/visitor-count';
 
 @Component({
   selector: 'app-resume-interview',
-  imports: [FormsModule],
+  imports: [FormsModule, VisitorCount],
   templateUrl: './resume-interview.html',
   styleUrl: './resume-interview.scss'
 })
