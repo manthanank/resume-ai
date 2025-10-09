@@ -40,23 +40,66 @@ export class ResumeInterview {
   // Session Management Methods
   setSession(session: UploadResponseInterface): void {
     this.currentSession.set(session);
+    // Persist to localStorage
+    localStorage.setItem('resume-interview-session', JSON.stringify(session));
   }
 
   getSession(): UploadResponseInterface | null {
-    return this.currentSession();
+    // Try to get from signal first
+    const sessionFromSignal = this.currentSession();
+    if (sessionFromSignal) {
+      return sessionFromSignal;
+    }
+
+    // Try to get from localStorage
+    try {
+      const sessionFromStorage = localStorage.getItem('resume-interview-session');
+      if (sessionFromStorage) {
+        const parsedSession = JSON.parse(sessionFromStorage);
+        this.currentSession.set(parsedSession);
+        return parsedSession;
+      }
+    } catch (error) {
+      console.error('Error parsing session from localStorage:', error);
+    }
+
+    return null;
   }
 
   setResults(results: ResultsData): void {
     this.currentResults.set(results);
+    // Persist to localStorage
+    localStorage.setItem('resume-interview-results', JSON.stringify(results));
   }
 
   getResults(): ResultsData | null {
-    return this.currentResults();
+    // Try to get from signal first
+    const resultsFromSignal = this.currentResults();
+    if (resultsFromSignal) {
+      return resultsFromSignal;
+    }
+
+    // Try to get from localStorage
+    try {
+      const resultsFromStorage = localStorage.getItem('resume-interview-results');
+      if (resultsFromStorage) {
+        const parsedResults = JSON.parse(resultsFromStorage);
+        this.currentResults.set(parsedResults);
+        return parsedResults;
+      }
+    } catch (error) {
+      console.error('Error parsing results from localStorage:', error);
+    }
+
+    return null;
   }
 
   clearSession(): void {
     this.currentSession.set(null);
     this.currentResults.set(null);
+    // Clear from localStorage
+    localStorage.removeItem('resume-interview-session');
+    localStorage.removeItem('resume-interview-results');
   }
 
   hasSession(): boolean {

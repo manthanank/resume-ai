@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { extractText } from '../services/extractText.service.js';
 import { uploadToCloudinary } from '../services/storage.service.js';
-import { generateQuestionsFromText, reviewAnswers } from '../services/ai.service.js';
+import { generateQuestionsFromText, reviewAnswers, analyzeResume } from '../services/ai.service.js';
 import Resume from '../models/Resume.js';
 import InterviewSession from '../models/InterviewSession.js';
 import { safeUnlink } from '../utils/file.utils.js';
@@ -64,6 +64,7 @@ router.post('/upload', upload.single('resume'), async (req, res) => {
     return res.json({
       success: true,
       sessionId: session._id,
+      resumeId: resumeDoc._id,
       currentQuestion: questions[0],
       currentIndex: 0,
       remaining: questions.length - 1
@@ -116,6 +117,87 @@ router.post('/interview/answer', async (req, res) => {
       message: 'Interview complete',
       overallScore: aiResult.overallScore,
       reviews: aiResult.reviews
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || 'Server error' });
+  }
+});
+
+/**
+ * Analyze resume -> provide detailed feedback and suggestions
+ * POST /api/resume/analyze
+ * body: { resumeId }
+ */
+router.post('/resume/analyze', async (req, res) => {
+  try {
+    const { resumeId } = req.body;
+    if (!resumeId) {
+      return res.status(400).json({ error: 'resumeId is required' });
+    }
+
+    const resume = await Resume.findById(resumeId);
+    if (!resume) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+
+    // Check if analysis already exists
+    if (resume.analysis) {
+      return res.json({
+        success: true,
+        analysis: resume.analysis
+      });
+    }
+
+    // Perform AI analysis
+    const analysis = await analyzeResume(resume.extractedText);
+
+    // Update resume with analysis
+    resume.analysis = analysis;
+    await resume.save();
+
+    return res.json({
+      success: true,
+      analysis
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || 'Server error' });
+  }
+});
+
+/**
+ * Get resume analysis (if exists)
+ * GET /api/resume/:id/analysis
+ */
+router.get('/resume/:id/analysis', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const resume = await Resume.findById(id);
+    if (!resume) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+
+    if (!resume.analysis) {
+      // Auto-trigger analysis if it doesn't exist
+      try {
+        const analysis = await analyzeResume(resume.extractedText);
+        resume.analysis = analysis;
+        await resume.save();
+
+        return res.json({
+          success: true,
+          analysis
+        });
+      } catch (analysisError) {
+        return res.status(500).json({
+          error: 'Failed to analyze resume: ' + (analysisError.message || 'Unknown error')
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      analysis: resume.analysis
     });
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Server error' });

@@ -1,0 +1,289 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Resume Analysis</h1>
+          <p class="mt-2 text-gray-600 dark:text-gray-400">AI-powered insights and improvement suggestions for your resume</p>
+        </div>
+        <div class="flex items-center space-x-4 ml-6">
+          <app-dark-mode-toggle></app-dark-mode-toggle>
+          <app-visitor-count></app-visitor-count>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="text-center py-12">
+        <div class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md">
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Analyzing your resume...
+        </div>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (errorMessage()) {
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
+            <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+              <p>{{ errorMessage() }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Analysis Results -->
+    @if (analysis() && !isLoading()) {
+      <div class="space-y-8">
+      <!-- Overall Score -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-20 h-20 rounded-full {{ getScoreColorClass(analysis()!.overallScore) }} mb-4">
+            <span class="text-2xl font-bold">{{ analysis()!.overallScore }}</span>
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Overall Score</h2>
+          <p class="text-gray-600 dark:text-gray-400">{{ getScoreDescription(analysis()!.overallScore) }}</p>
+        </div>
+      </div>
+
+      <!-- Strengths & Weaknesses -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Strengths -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <svg class="h-5 w-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Strengths
+          </h3>
+          <ul class="space-y-2">
+            @for (strength of analysis()!.strengths; track strength) {
+              <li class="flex items-start">
+                <svg class="h-4 w-4 text-green-500 mt-1 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-gray-700 dark:text-gray-300">{{ strength }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <!-- Weaknesses -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <svg class="h-5 w-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            Areas for Improvement
+          </h3>
+          <ul class="space-y-2">
+            @for (weakness of analysis()!.weaknesses; track weakness) {
+              <li class="flex items-start">
+                <svg class="h-4 w-4 text-red-500 mt-1 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-gray-700 dark:text-gray-300">{{ weakness }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+
+      <!-- Detailed Improvements -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+          <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+          Detailed Improvement Suggestions
+        </h3>
+        <div class="space-y-4">
+          @for (improvement of analysis()!.improvements; track improvement.title) {
+            <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4 bg-gray-50 dark:bg-gray-700">
+              <div class="flex items-start justify-between mb-2">
+                <h4 class="font-medium text-gray-900 dark:text-white">{{ improvement.title }}</h4>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ getPriorityColor(improvement.priority) }}">
+                  {{ improvement.priority }} priority
+                </span>
+              </div>
+              <p class="text-gray-600 dark:text-gray-300 mb-3">{{ improvement.description }}</p>
+              @if (improvement.examples.length > 0) {
+                <div class="bg-gray-100 dark:bg-gray-600 rounded-md p-3">
+                  <h5 class="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Examples:</h5>
+                  <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                    @for (example of improvement.examples; track example) {
+                      <li class="flex items-start">
+                        <span class="text-gray-400 dark:text-gray-300 mr-2">•</span>
+                        {{ example }}
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ATS Compatibility -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+          <svg class="h-5 w-5 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          ATS Compatibility Score: {{ analysis()!.atsCompatibility.score }}/100
+        </h3>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Issues Found:</h4>
+            <ul class="space-y-1">
+              @for (issue of analysis()!.atsCompatibility.issues; track issue) {
+                <li class="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                  <span class="text-red-500 mr-2">•</span>
+                  {{ issue }}
+                </li>
+              }
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Suggestions:</h4>
+            <ul class="space-y-1">
+              @for (suggestion of analysis()!.atsCompatibility.suggestions; track suggestion) {
+                <li class="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                  <span class="text-green-500 mr-2">•</span>
+                  {{ suggestion }}
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Structure Analysis -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Resume Structure Analysis</h3>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div>
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Current Sections:</h4>
+            <div class="space-y-1">
+              @for (section of analysis()!.structureAnalysis.sections; track section) {
+                <span class="inline-block bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                  {{ section }}
+                </span>
+              }
+            </div>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Missing Sections:</h4>
+            <div class="space-y-1">
+              @for (section of analysis()!.structureAnalysis.missingSections; track section) {
+                <span class="inline-block bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                  {{ section }}
+                </span>
+              }
+            </div>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Recommendations:</h4>
+            <ul class="space-y-1">
+              @for (rec of analysis()!.structureAnalysis.recommendations; track rec) {
+                <li class="text-sm text-gray-600 dark:text-gray-300">
+                  • {{ rec }}
+                </li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Keyword Optimization -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Keyword Optimization</h3>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div>
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Current Keywords:</h4>
+            <div class="space-y-1">
+              @for (keyword of analysis()!.keywordOptimization.currentKeywords; track keyword) {
+                <span class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                  {{ keyword }}
+                </span>
+              }
+            </div>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Suggested Keywords:</h4>
+            <div class="space-y-1">
+              @for (keyword of analysis()!.keywordOptimization.suggestedKeywords; track keyword) {
+                <span class="inline-block bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                  {{ keyword }}
+                </span>
+              }
+            </div>
+          </div>
+          <div>
+            <h4 class="font-medium text-gray-900 dark:text-white mb-2">Industry Keywords:</h4>
+            <div class="space-y-1">
+              @for (keyword of analysis()!.keywordOptimization.industryKeywords; track keyword) {
+                <span class="inline-block bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs px-2 py-1 rounded-full mr-1 mb-1">
+                  {{ keyword }}
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formatting Suggestions -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Formatting Suggestions</h3>
+        <ul class="space-y-2">
+          @for (suggestion of analysis()!.formattingSuggestions; track suggestion) {
+            <li class="flex items-start">
+              <svg class="h-4 w-4 text-blue-500 mt-1 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-gray-700 dark:text-gray-300">{{ suggestion }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-center space-x-4 pt-6">
+        <button
+          (click)="goBack()"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Back to Upload
+        </button>
+        <button
+          (click)="startInterview()"
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+          Start Interview
+        </button>
+      </div>
+      </div>
+    }
+  </div>
+</div>

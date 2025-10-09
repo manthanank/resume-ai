@@ -3,10 +3,11 @@ import { Router } from '@angular/router';
 import { ResumeInterview } from '../../services/resume-interview';
 import { ReviewInterface } from '../../models/interview';
 import { VisitorCount } from '../visitor-count/visitor-count';
+import { DarkModeToggle } from '../dark-mode-toggle/dark-mode-toggle';
 
 @Component({
   selector: 'app-resume-results',
-  imports: [VisitorCount],
+  imports: [VisitorCount, DarkModeToggle],
   templateUrl: './resume-results.html',
   styleUrl: './resume-results.scss'
 })

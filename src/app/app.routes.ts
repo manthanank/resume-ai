@@ -14,5 +14,9 @@ export const routes: Routes = [
     path: 'results',
     loadComponent: () => import('./components/resume-results/resume-results').then((m) => m.ResumeResults),
   },
+  {
+    path: 'analysis/:id',
+    loadComponent: () => import('./components/resume-analysis/resume-analysis').then((m) => m.ResumeAnalysis),
+  },
   { path: '**', redirectTo: '' },
 ];

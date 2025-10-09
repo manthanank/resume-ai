@@ -5,6 +5,7 @@ An AI-powered interview application that conducts automated interviews based on 
 ## ✨ Features
 
 - **Resume Upload**: Support for PDF and DOCX files (up to 5MB)
+- **AI Resume Analysis**: Comprehensive resume review with improvement suggestions, ATS compatibility scoring, and keyword optimization
 - **AI-Generated Questions**: Questions are dynamically generated based on your resume content using Google Gemini AI
 - **Interactive Interview**: Step-by-step interview process with progress tracking
 - **Detailed Feedback**: Comprehensive reviews and scoring for each answer
@@ -104,8 +105,9 @@ An AI-powered interview application that conducts automated interviews based on 
 
 1. **Upload Resume**: Select and upload your resume (PDF or DOCX format)
 2. **AI Processing**: The system extracts text and generates relevant interview questions
-3. **Answer Questions**: Go through each question and provide detailed answers
-4. **Get Results**: Receive comprehensive feedback and scoring for your performance
+3. **Resume Analysis**: Get detailed analysis with improvement suggestions, ATS compatibility score, and keyword optimization
+4. **Answer Questions**: Go through each question and provide detailed answers
+5. **Get Results**: Receive comprehensive feedback and scoring for your performance
 
 ## 🔧 API Endpoints
 
@@ -123,6 +125,20 @@ Body: resume file (PDF/DOCX)
 POST /api/interview/answer
 Content-Type: application/json
 Body: { sessionId: string, answer: string }
+```
+
+### Analyze Resume
+
+```text
+POST /api/resume/analyze
+Content-Type: application/json
+Body: { resumeId: string }
+```
+
+### Get Resume Analysis
+
+```text
+GET /api/resume/:id/analysis
 ```
 
 ## 🛠️ Development

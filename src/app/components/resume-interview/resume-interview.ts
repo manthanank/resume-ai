@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import { ResumeInterview as ResumeInterviewService } from '../../services/resume-interview';
 import { AnswerResponseInterface } from '../../models/interview';
 import { VisitorCount } from '../visitor-count/visitor-count';
+import { DarkModeToggle } from '../dark-mode-toggle/dark-mode-toggle';
 
 @Component({
   selector: 'app-resume-interview',
-  imports: [FormsModule, VisitorCount],
+  imports: [FormsModule, VisitorCount, DarkModeToggle],
   templateUrl: './resume-interview.html',
   styleUrl: './resume-interview.scss'
 })

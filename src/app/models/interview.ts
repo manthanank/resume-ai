@@ -28,6 +28,7 @@ export interface InterviewSessionInterface {
 export interface UploadResponseInterface {
   success: boolean;
   sessionId: string;
+  resumeId: string;
   currentQuestion: string;
   currentIndex: number;
   remaining: number;

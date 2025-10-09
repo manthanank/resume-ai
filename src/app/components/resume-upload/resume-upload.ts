@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import { ResumeInterview } from '../../services/resume-interview';
 import { Track } from '../../services/track';
 import { VisitorCount } from '../visitor-count/visitor-count';
+import { DarkModeToggle } from '../dark-mode-toggle/dark-mode-toggle';
 
 @Component({
   selector: 'app-resume-upload',
-  imports: [FormsModule, VisitorCount],
+  imports: [FormsModule, VisitorCount, DarkModeToggle],
   templateUrl: './resume-upload.html',
   styleUrl: './resume-upload.scss'
 })
@@ -15,6 +16,8 @@ export class ResumeUpload {
   selectedFile = signal<File | null>(null);
   isUploading = signal(false);
   errorMessage = signal<string>('');
+  uploadSuccess = signal(false);
+  uploadedResumeId = signal<string>('');
 
   private trackService = inject(Track);
 
@@ -62,15 +65,30 @@ export class ResumeUpload {
       .subscribe({
         next: (response) => {
           this.isUploading.set(false);
+          this.uploadSuccess.set(true);
+          this.uploadedResumeId.set(response.resumeId);
           // Store session data in service
           this.resumeInterviewService.setSession(response);
-          // Navigate to interview
-          this.router.navigate(['/interview']);
         },
         error: (error) => {
           this.isUploading.set(false);
           this.errorMessage.set(error.message || 'Upload failed. Please try again.');
         }
       });
+  }
+
+  viewAnalysis(): void {
+    this.router.navigate(['/analysis', this.uploadedResumeId()]);
+  }
+
+  startInterview(): void {
+    this.router.navigate(['/interview']);
+  }
+
+  resetUpload(): void {
+    this.uploadSuccess.set(false);
+    this.selectedFile.set(null);
+    this.uploadedResumeId.set('');
+    this.errorMessage.set('');
   }
 }
