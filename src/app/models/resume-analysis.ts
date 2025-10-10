@@ -38,5 +38,6 @@ export interface ResumeAnalysis {
 
 export interface AnalysisResponse {
   success: boolean;
+  resumeId: string;
   analysis: ResumeAnalysis;
 }

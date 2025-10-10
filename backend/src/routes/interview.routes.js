@@ -157,6 +157,7 @@ router.post('/resume/analyze', async (req, res) => {
 
     return res.json({
       success: true,
+      resumeId: resume._id,
       analysis
     });
   } catch (err) {
@@ -186,6 +187,7 @@ router.get('/resume/:id/analysis', async (req, res) => {
 
         return res.json({
           success: true,
+          resumeId: resume._id,
           analysis
         });
       } catch (analysisError) {
@@ -197,6 +199,7 @@ router.get('/resume/:id/analysis', async (req, res) => {
 
     return res.json({
       success: true,
+      resumeId: resume._id,
       analysis: resume.analysis
     });
   } catch (err) {
