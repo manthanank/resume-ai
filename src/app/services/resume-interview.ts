@@ -40,8 +40,8 @@ export class ResumeInterview {
   // Session Management Methods
   setSession(session: UploadResponseInterface): void {
     this.currentSession.set(session);
-    // Persist to localStorage
-    localStorage.setItem('resume-interview-session', JSON.stringify(session));
+    // Persist to sessionStorage
+    sessionStorage.setItem('resume-interview-session', JSON.stringify(session));
   }
 
   getSession(): UploadResponseInterface | null {
@@ -51,16 +51,16 @@ export class ResumeInterview {
       return sessionFromSignal;
     }
 
-    // Try to get from localStorage
+    // Try to get from sessionStorage
     try {
-      const sessionFromStorage = localStorage.getItem('resume-interview-session');
+      const sessionFromStorage = sessionStorage.getItem('resume-interview-session');
       if (sessionFromStorage) {
         const parsedSession = JSON.parse(sessionFromStorage);
         this.currentSession.set(parsedSession);
         return parsedSession;
       }
     } catch (error) {
-      console.error('Error parsing session from localStorage:', error);
+      console.error('Error parsing session from sessionStorage:', error);
     }
 
     return null;
@@ -68,8 +68,8 @@ export class ResumeInterview {
 
   setResults(results: ResultsData): void {
     this.currentResults.set(results);
-    // Persist to localStorage
-    localStorage.setItem('resume-interview-results', JSON.stringify(results));
+    // Persist to sessionStorage
+    sessionStorage.setItem('resume-interview-results', JSON.stringify(results));
   }
 
   getResults(): ResultsData | null {
@@ -79,16 +79,16 @@ export class ResumeInterview {
       return resultsFromSignal;
     }
 
-    // Try to get from localStorage
+    // Try to get from sessionStorage
     try {
-      const resultsFromStorage = localStorage.getItem('resume-interview-results');
+      const resultsFromStorage = sessionStorage.getItem('resume-interview-results');
       if (resultsFromStorage) {
         const parsedResults = JSON.parse(resultsFromStorage);
         this.currentResults.set(parsedResults);
         return parsedResults;
       }
     } catch (error) {
-      console.error('Error parsing results from localStorage:', error);
+      console.error('Error parsing results from sessionStorage:', error);
     }
 
     return null;
@@ -97,9 +97,9 @@ export class ResumeInterview {
   clearSession(): void {
     this.currentSession.set(null);
     this.currentResults.set(null);
-    // Clear from localStorage
-    localStorage.removeItem('resume-interview-session');
-    localStorage.removeItem('resume-interview-results');
+    // Clear from sessionStorage
+    sessionStorage.removeItem('resume-interview-session');
+    sessionStorage.removeItem('resume-interview-results');
   }
 
   hasSession(): boolean {

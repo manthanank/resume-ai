@@ -63,8 +63,8 @@ router.post('/upload', upload.single('resume'), async (req, res) => {
 
     return res.json({
       success: true,
-      sessionId: session._id,
-      resumeId: resumeDoc._id,
+      sessionId: session._id.toString(),
+      resumeId: resumeDoc._id.toString(),
       currentQuestion: questions[0],
       currentIndex: 0,
       remaining: questions.length - 1

@@ -11,7 +11,7 @@ export class DarkMode {
 
   constructor() {
     // Check for saved theme preference or default to light mode
-    const savedTheme = localStorage.getItem('darkMode');
+    const savedTheme = sessionStorage.getItem('darkMode');
     if (savedTheme !== null) {
       this.darkMode.set(savedTheme === 'true');
     } else {
@@ -24,7 +24,7 @@ export class DarkMode {
 
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('darkMode')) {
+      if (!sessionStorage.getItem('darkMode')) {
         this.darkMode.set(e.matches);
         this.applyTheme();
       }
@@ -34,8 +34,8 @@ export class DarkMode {
   toggleDarkMode(): void {
     this.darkMode.set(!this.darkMode());
     this.applyTheme();
-    // Save preference to localStorage
-    localStorage.setItem('darkMode', this.darkMode().toString());
+    // Save preference to sessionStorage
+    sessionStorage.setItem('darkMode', this.darkMode().toString());
   }
 
   private applyTheme(): void {
